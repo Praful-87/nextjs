@@ -171,3 +171,21 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        message: "Internal server error",
+      },
+      {
+        status: 500,
+      },
+    );
+  }
+}
