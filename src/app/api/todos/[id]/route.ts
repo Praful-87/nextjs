@@ -177,6 +177,43 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
+    await dbConnect();
+
+    const { id } = await context.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return Response.json(
+        {
+          success: false,
+          message: "Invalid Todo",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const deletedTodo = await Todo.findByIdAndDelete(id);
+    if (!deletedTodo) {
+      return Response.json(
+        {
+          success: false,
+          message: "Todo not found",
+        },
+        {
+          status: 404,
+        },
+      );
+    }
+
+    return Response.json(
+      {
+        success: true,
+        message: "Todo deleted successfully",
+      },
+      {
+        status: 200,
+      },
+    );
   } catch (error) {
     return Response.json(
       {
