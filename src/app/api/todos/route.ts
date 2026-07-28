@@ -5,7 +5,7 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const todos = await Todo.find();
+    const todos = await Todo.find({completed: false,}).sort({ createdAt: -1 }).select("title description completed createdAt");
 
     return Response.json(
       {
