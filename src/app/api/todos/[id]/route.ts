@@ -209,6 +209,7 @@ export async function DELETE(
       {
         success: true,
         message: "Todo deleted successfully",
+        data: deletedTodo,
       },
       {
         status: 200,

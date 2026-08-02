@@ -48,10 +48,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const todo = await Todo.create({
-      title,
-      description,
-    });
+    const todo = await Todo.create({ title, description, });
 
     return Response.json(
       {
