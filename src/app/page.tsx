@@ -1,28 +1,22 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import TodoForm from "@/components/TodoForm";
 import TodoList from "@/components/TodoList";
+import dbConnect from "@/lib/dbConnect";
+import Todo from "@/models/Todo";
 
-type Todo = {
-  _id: string;
-  title: string;
-  description: string;
-};
+export default async function Home() {
+  await dbConnect();
 
-export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const todos = await Todo.find()
+    .select("title description completed createdAt")
+    .sort({ createdAt: -1 })
+    .lean();
 
-  async function fetchTodos() {
-    const response = await fetch("/api/todos");
-    const result = await response.json();
-
-    setTodos(result.data);
-  }
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+  const formattedTodos = todos.map((todo) => ({
+    _id: todo._id.toString(),
+    title: todo.title,
+    description: todo.description,
+    completed: todo.completed,
+  }));
 
   return (
     <main className="min-h-screen p-10">
@@ -31,15 +25,9 @@ export default function Home() {
           Todo App
         </h1>
 
-        <TodoForm
-          mode="create"
-          fetchTodos={fetchTodos}
-        />
+        <TodoForm mode="create" />
 
-        <TodoList
-          todos={todos}
-          fetchTodos={fetchTodos}
-        />
+        <TodoList todos={formattedTodos} />
       </div>
     </main>
   );

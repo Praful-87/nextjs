@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import mongoose from "mongoose";
 import TodoForm from "@/components/TodoForm";
 import dbConnect from "@/lib/dbConnect";
 import Todo from "@/models/Todo";
@@ -13,6 +14,10 @@ export default async function EditTodoPage({
   params,
 }: PageProps) {
   const { id } = await params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    notFound();
+  }
 
   await dbConnect();
 

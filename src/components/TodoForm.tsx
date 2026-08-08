@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Todo = {
@@ -10,39 +11,26 @@ type Todo = {
 };
 
 type TodoFormProps = {
-  fetchTodos?: () => Promise<void>;
   mode: "create" | "edit";
   todo?: Todo;
 };
 
-export default function TodoForm({
-  fetchTodos,
-  mode,
-  todo,
-}: TodoFormProps) {
+export default function TodoForm({mode, todo }: TodoFormProps) {
+  const router = useRouter();
   const [title, setTitle] = useState(todo?.title ?? "");
-  const [description, setDescription] = useState(
-    todo?.description ?? "",
-  );
-  const [completed, setCompleted] = useState(
-    todo?.completed ?? false,
-  );
+  const [description, setDescription] = useState(todo?.description ?? "");
+  const [completed, setCompleted] = useState(todo?.completed ?? false);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubmit(
-    e: React.FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setIsLoading(true);
 
     try {
-      const url =
-        mode === "create"
-          ? "/api/todos"
-          : `/api/todos/${todo?._id}`;
+      const url = mode === "create" ? "/api/todos" : `/api/todos/${todo?._id}`;
 
-      const method = mode === "create" ? "POST" : "PUT";
+      const method = mode === "create" ? "POST" : "PATCH";
 
       const response = await fetch(url, {
         method,
@@ -66,8 +54,10 @@ export default function TodoForm({
           setDescription("");
           setCompleted(false);
 
-          await fetchTodos?.();
+          // await fetchTodos?.();
         }
+
+        router.refresh();
       }
     } catch (error) {
       console.error(error);
@@ -82,10 +72,7 @@ export default function TodoForm({
         {mode === "create" ? "Add Todo" : "Edit Todo"}
       </h2>
 
-      <form
-        className="space-y-4"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
