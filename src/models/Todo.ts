@@ -8,14 +8,14 @@ const TodoSchema = new Schema(
       trim: true,
     },
 
-    completed: {
-      type: Boolean,
-      default: false,
-    },
     description: {
       type: String,
       default: "",
       trim: true,
+    },
+    completed: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -1,11 +1,14 @@
 import dbConnect from "@/lib/dbConnect";
 import Todo from "@/models/Todo";
+import { createTodoSchema } from "@/lib/validations/todo";
 
 export async function GET() {
   try {
     await dbConnect();
 
-    const todos = await Todo.find().sort({ createdAt: -1 }).select("title description completed createdAt");
+    const todos = await Todo.find()
+      .select("title description completed createdAt")
+      .sort({ createdAt: -1 });
 
     return Response.json(
       {
@@ -17,10 +20,12 @@ export async function GET() {
       },
     );
   } catch (error) {
+    console.error(error);
+
     return Response.json(
       {
         success: false,
-        message: "Internal Server Error",
+        message: "Internal server error",
       },
       {
         status: 500,
@@ -28,19 +33,21 @@ export async function GET() {
     );
   }
 }
+
 export async function POST(request: Request) {
   try {
     await dbConnect();
 
     const body = await request.json();
 
-    const { title, description } = body;
+    const result = createTodoSchema.safeParse(body);
 
-    if (!title) {
+    if (!result.success) {
       return Response.json(
         {
           success: false,
-          message: "Title is required",
+          message: "Invalid todo data",
+          errors: result.error.flatten().fieldErrors,
         },
         {
           status: 400,
@@ -48,7 +55,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const todo = await Todo.create({ title, description, });
+    const todo = await Todo.create(result.data);
 
     return Response.json(
       {
@@ -60,10 +67,12 @@ export async function POST(request: Request) {
       },
     );
   } catch (error) {
+    console.error(error);
+
     return Response.json(
       {
         success: false,
-        message: "Internal Server Error",
+        message: "Internal server error",
       },
       {
         status: 500,
