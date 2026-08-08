@@ -216,6 +216,7 @@ export async function DELETE(
       },
     );
   } catch (error) {
+    console.log(error)
     return Response.json(
       {
         success: false,
