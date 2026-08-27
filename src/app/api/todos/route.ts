@@ -1,82 +1,51 @@
-import dbConnect from "@/lib/dbConnect";
-import Todo from "@/models/Todo";
-import { createTodoSchema } from "@/lib/validations/todo";
+import {
+  successResponse,
+  errorResponse,
+} from "@/lib/apiResponse/apiResponse";
+
+import { todoSchema } from "@/lib/validations/todo";
+
+import {
+  getTodos,
+  createTodo,
+} from "@/lib/services/todoService";
+
+import { handleApiError } from "@/lib/utils/handleApiError";
 
 export async function GET() {
   try {
-    await dbConnect();
+    const todos = await getTodos();
 
-    const todos = await Todo.find()
-      .select("title description completed createdAt")
-      .sort({ createdAt: -1 });
-
-    return Response.json(
-      {
-        success: true,
-        data: todos,
-      },
-      {
-        status: 200,
-      },
-    );
+    return successResponse(todos);
   } catch (error) {
-    console.error(error);
-
-    return Response.json(
-      {
-        success: false,
-        message: "Internal server error",
-      },
-      {
-        status: 500,
-      },
-    );
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request) {
   try {
-    await dbConnect();
+    let body;
 
-    const body = await request.json();
+    try {
+      body = await request.json();
+    } catch {
+      return errorResponse("Invalid JSON body", 400);
+    }
 
-    const result = createTodoSchema.safeParse(body);
+    const result = todoSchema.safeParse(body);
 
     if (!result.success) {
-      return Response.json(
-        {
-          success: false,
-          message: "Invalid todo data",
-          errors: result.error.flatten().fieldErrors,
-        },
-        {
-          status: 400,
-        },
+      return errorResponse(
+        "Invalid todo data",
+        400,
+        result.error.flatten().fieldErrors,
       );
     }
 
-    const todo = await Todo.create(result.data);
+    const todo = await createTodo(result.data);
 
-    return Response.json(
-      {
-        success: true,
-        data: todo,
-      },
-      {
-        status: 201,
-      },
-    );
+    return successResponse(todo, 201);
   } catch (error) {
-    console.error(error);
-
-    return Response.json(
-      {
-        success: false,
-        message: "Internal server error",
-      },
-      {
-        status: 500,
-      },
-    );
+    return handleApiError(error);
   }
 }
