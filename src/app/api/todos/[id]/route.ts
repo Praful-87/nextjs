@@ -1,12 +1,4 @@
-import {
-  InvalidTodoIdError,
-  TodoNotFoundError,
-} from "@/lib/errors/TodoErrors";
-
-import {
-  successResponse,
-  errorResponse,
-} from "@/lib/apiResponse";
+import { successResponse, errorResponse } from "@/lib/apiResponse/apiResponse";
 
 import {
   getTodoById,
@@ -15,24 +7,9 @@ import {
   deleteTodo,
 } from "@/lib/services/todoService";
 
-import {
-  todoSchema,
-  updateTodoSchema,
-} from "@/lib/validations/todo";
+import { todoSchema, updateTodoSchema } from "@/lib/validations/todo";
 
-function handleError(error: unknown) {
-  if (error instanceof InvalidTodoIdError) {
-    return errorResponse(error.message, 400);
-  }
-
-  if (error instanceof TodoNotFoundError) {
-    return errorResponse(error.message, 404);
-  }
-
-  console.error(error);
-
-  return errorResponse("Internal server error", 500);
-}
+import { handleApiError } from "@/lib/utils/handleApiError";
 
 export async function GET(
   request: Request,
@@ -45,7 +22,7 @@ export async function GET(
 
     return successResponse(todo);
   } catch (error) {
-    return handleError(error);
+    return handleApiError(error);
   }
 }
 
@@ -78,7 +55,7 @@ export async function PUT(
 
     return successResponse(todo);
   } catch (error) {
-    return handleError(error);
+    return handleApiError(error);
   }
 }
 
@@ -108,17 +85,14 @@ export async function PATCH(
     }
 
     if (Object.keys(result.data).length === 0) {
-      return errorResponse(
-        "At least one field is required",
-        400,
-      );
+      return errorResponse("At least one field is required", 400);
     }
 
     const todo = await patchTodo(id, result.data);
 
     return successResponse(todo);
   } catch (error) {
-    return handleError(error);
+    return handleApiError(error);
   }
 }
 
@@ -140,6 +114,6 @@ export async function DELETE(
       { status: 200 },
     );
   } catch (error) {
-    return handleError(error);
+    return handleApiError(error);
   }
 }

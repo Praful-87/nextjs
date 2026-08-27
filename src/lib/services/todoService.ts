@@ -9,6 +9,20 @@ function validateTodoId(id: string) {
   }
 }
 
+export async function getTodos() {
+  await dbConnect();
+
+  return Todo.find()
+    .select("title description completed createdAt")
+    .sort({ createdAt: -1 });
+}
+
+export async function createTodo(data: { title: string; description: string }) {
+  await dbConnect();
+
+  return Todo.create(data);
+}
+
 export async function getTodoById(id: string) {
   validateTodoId(id);
 
