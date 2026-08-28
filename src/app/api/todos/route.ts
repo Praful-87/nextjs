@@ -3,7 +3,7 @@ import {
   errorResponse,
 } from "@/lib/apiResponse/apiResponse";
 
-import { todoSchema } from "@/lib/validations/todo";
+import { createTodoSchema  } from "@/lib/validations/todo";
 
 import {
   getTodos,
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return errorResponse("Invalid JSON body", 400);
     }
 
-    const result = todoSchema.safeParse(body);
+    const result = createTodoSchema .safeParse(body);
 
     if (!result.success) {
       return errorResponse(

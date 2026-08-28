@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createTodoSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
 
-  description: z.string().trim().default(""),
+  description: z.string().trim().min(1,"Descriptoin is required").default(""),
 
   completed: z.boolean().default(false),
 });
