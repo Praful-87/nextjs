@@ -102,17 +102,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-
     const todo = await deleteTodo(id);
-
-    return Response.json(
-      {
-        success: true,
-        message: "Todo deleted successfully",
-        data: todo,
-      },
-      { status: 200 },
-    );
+    return successResponse(todo, 200);
   } catch (error) {
     return handleApiError(error);
   }
