@@ -72,7 +72,6 @@ export default function TodoForm({ mode, todo }: TodoFormProps) {
       }
 
       router.push("/");
-      router.refresh();
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message);
