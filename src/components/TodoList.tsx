@@ -1,16 +1,12 @@
 "use client";
 
 import { deleteTodo, ApiError } from "@/lib/api/todos";
+import { Todo } from "@/types/todo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type Todo = {
-  _id: string;
-  title: string;
-  description: string;
-  completed: boolean;
-};
+
 
 type TodoListProps = {
   todos: Todo[];
