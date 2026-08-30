@@ -1,5 +1,4 @@
-import { Todo, TodoInput } from "@/types/todo";
-
+import type { Todo, TodoInput } from "@/types/todo";
 
 export type FieldErrors = Record<string, string[]>;
 
