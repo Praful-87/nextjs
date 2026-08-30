@@ -3,7 +3,6 @@ import { successResponse, errorResponse } from "@/lib/apiResponse/apiResponse";
 import {
   getTodoById,
   updateTodo,
-  patchTodo,
   deleteTodo,
 } from "@/lib/services/todoService";
 
@@ -88,7 +87,7 @@ export async function PATCH(
       return errorResponse("At least one field is required", 400);
     }
 
-    const todo = await patchTodo(id, result.data);
+    const todo = await updateTodo(id, result.data);
 
     return successResponse(todo);
   } catch (error) {

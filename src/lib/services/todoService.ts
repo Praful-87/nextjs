@@ -42,30 +42,6 @@ export async function getTodoById(id: string) {
 export async function updateTodo(
   id: string,
   data: {
-    title: string;
-    description: string;
-    completed: boolean;
-  },
-) {
-  validateTodoId(id);
-
-  await dbConnect();
-
-  const todo = await Todo.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!todo) {
-    throw new TodoNotFoundError();
-  }
-
-  return todo;
-}
-
-export async function patchTodo(
-  id: string,
-  data: {
     title?: string;
     description?: string;
     completed?: boolean;
@@ -86,6 +62,7 @@ export async function patchTodo(
 
   return todo;
 }
+
 
 export async function deleteTodo(id: string) {
   validateTodoId(id);

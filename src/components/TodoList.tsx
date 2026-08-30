@@ -6,8 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-
-
 type TodoListProps = {
   todos: Todo[];
 };
@@ -48,7 +46,21 @@ export default function TodoList({ todos }: TodoListProps) {
   }
 
   if (todos.length === 0) {
-    return <p>No Todos yet.</p>;
+    return (
+      <div className="space-y-4">
+        {error && (
+          <p className="rounded bg-red-100 p-3 text-red-600">{error}</p>
+        )}
+
+        {todos.length === 0 ? (
+          <p>No Todos yet.</p>
+        ) : (
+          <div className="h-50 space-y-4 overflow-y-auto p-6">
+            {/* todos */}
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
