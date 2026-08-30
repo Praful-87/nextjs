@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
-import mongoose from "mongoose";
 import TodoForm from "@/components/TodoForm";
-import dbConnect from "@/lib/dbConnect";
-import Todo from "@/models/Todo";
+import { getTodoById } from "@/lib/services/todoService";
+import { InvalidTodoIdError, TodoNotFoundError } from "@/lib/errors/TodoErrors";
 
 type PageProps = {
   params: Promise<{
@@ -10,36 +9,33 @@ type PageProps = {
   }>;
 };
 
-export default async function EditTodoPage({
-  params,
-}: PageProps) {
+export default async function EditTodoPage({ params }: PageProps) {
   const { id } = await params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    notFound();
+  try {
+    const todo = await getTodoById(id);
+
+    return (
+      <main className="min-h-screen p-10">
+        <div className="mx-auto max-w-2xl">
+          <TodoForm
+            mode="edit"
+            todo={{
+              _id: todo._id.toString(),
+              title: todo.title,
+              description: todo.description,
+              completed: todo.completed,
+            }}
+          />
+        </div>
+      </main>
+    );
+  } catch (error) {
+    if (
+      error instanceof InvalidTodoIdError ||
+      error instanceof TodoNotFoundError
+    ) {
+      notFound();
+    }
   }
-
-  await dbConnect();
-
-  const todo = await Todo.findById(id).lean();
-
-  if (!todo) {
-    notFound();
-  }
-
-  return (
-    <main className="min-h-screen p-10">
-      <div className="mx-auto max-w-2xl">
-        <TodoForm
-          mode="edit"
-          todo={{
-            _id: todo._id.toString(),
-            title: todo.title,
-            description: todo.description,
-            completed: todo.completed,
-          }}
-        />
-      </div>
-    </main>
-  );
 }

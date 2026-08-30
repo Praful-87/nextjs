@@ -71,6 +71,7 @@ export default function TodoForm({ mode, todo }: TodoFormProps) {
         await updateTodo(todo._id, data);
       }
 
+      router.push("/");
       router.refresh();
     } catch (error) {
       if (error instanceof ApiError) {
@@ -160,14 +161,14 @@ export default function TodoForm({ mode, todo }: TodoFormProps) {
                 : "Update Todo"}
           </button>
 
-          {mode === "edit" && (
+          {/* {mode === "edit" && (
             <Link
               href="/"
               className="flex items-center justify-center rounded bg-blue-400 px-5 py-2"
             >
               Home
             </Link>
-          )}
+          )} */}
         </div>
       </form>
     </div>
