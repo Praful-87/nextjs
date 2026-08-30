@@ -33,6 +33,16 @@ export default function TodoForm({ mode, todo }: TodoFormProps) {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
+  function clearFieldError(field: string) {
+    setFieldErrors((currentErrors) => {
+      const updatedErrors = { ...currentErrors };
+
+      delete updatedErrors[field];
+
+      return updatedErrors;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -90,7 +100,10 @@ export default function TodoForm({ mode, todo }: TodoFormProps) {
         <div>
           <input
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              clearFieldError("title");
+            }}
             type="text"
             placeholder="Title"
             className="w-full rounded border p-3"
@@ -104,7 +117,10 @@ export default function TodoForm({ mode, todo }: TodoFormProps) {
         <div>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              clearFieldError("description");
+            }}
             placeholder="Description"
             className="w-full rounded border p-3"
             rows={4}

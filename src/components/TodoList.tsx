@@ -1,8 +1,9 @@
 "use client";
 
-import { deleteTodo } from "@/lib/api/todos";
+import { deleteTodo, ApiError } from "@/lib/api/todos";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Todo = {
   _id: string;
@@ -18,15 +19,35 @@ type TodoListProps = {
 export default function TodoList({ todos }: TodoListProps) {
   const router = useRouter();
 
-  async function handleDelete(id: string) {
-    try {
-      const response = await deleteTodo(id);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-      if (response.ok) {
-        router.refresh();
-      }
+  async function handleDelete(id: string) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this Todo?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+    setDeletingId(id);
+
+    try {
+      await deleteTodo(id);
+
+      router.refresh();
     } catch (error) {
-      console.error(error);
+      if (error instanceof ApiError) {
+        setError(error.message);
+      } else {
+        setError(
+          error instanceof Error ? error.message : "Something went wrong",
+        );
+      }
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -35,35 +56,40 @@ export default function TodoList({ todos }: TodoListProps) {
   }
 
   return (
-    <div className="h-50 space-y-4 overflow-y-auto p-6">
-      {todos.map((todo) => (
-        <div
-          key={todo._id}
-          className="flex items-center justify-between rounded-lg border p-4"
-        >
-          <div>
-            <h2 className="text-lg font-semibold">{todo.title}</h2>
+    <div className="space-y-4">
+      {error && <p className="rounded bg-red-100 p-3 text-red-600">{error} </p>}
 
-            <p>{todo.description}</p>
+      <div className="h-50 space-y-4 overflow-y-auto p-6">
+        {todos.map((todo) => (
+          <div
+            key={todo._id}
+            className="flex items-center justify-between rounded-lg border p-4"
+          >
+            <div>
+              <h2 className="text-lg font-semibold">{todo.title}</h2>
+
+              <p>{todo.description}</p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Link
+                href={`/todos/edit/${todo._id}`}
+                className="flex h-10 w-18 items-center justify-center rounded bg-blue-400"
+              >
+                Edit
+              </Link>
+
+              <button
+                className="h-10 w-18 cursor-pointer rounded bg-red-600 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => handleDelete(todo._id)}
+                disabled={deletingId === todo._id}
+              >
+                {deletingId === todo._id ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <Link
-              href={`/todos/edit/${todo._id}`}
-              className="flex h-10 w-18 cursor-pointer items-center justify-center rounded bg-blue-400"
-            >
-              Edit
-            </Link>
-
-            <button
-              className="h-10 w-18 cursor-pointer rounded bg-red-600 px-3 py-2 text-white"
-              onClick={() => handleDelete(todo._id)}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
