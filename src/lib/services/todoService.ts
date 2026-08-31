@@ -9,28 +9,38 @@ function validateTodoId(id: string) {
   }
 }
 
-export async function getTodos() {
+export async function getTodos(userId: string) {
   await dbConnect();
 
-  return Todo.find()
+  return Todo.find({ userId })
     .select("title description completed createdAt")
     .sort({ createdAt: -1 });
 }
 
-export async function createTodo(data: { title: string; description: string }) {
+export async function createTodo(
+  userId: string,
+  data: {
+    title: string;
+    description: string;
+  },
+) {
   await dbConnect();
 
-  return Todo.create(data);
+  return Todo.create({
+    ...data,
+    userId,
+  });
 }
 
-export async function getTodoById(id: string) {
+export async function getTodoById(id: string, userId: string) {
   validateTodoId(id);
 
   await dbConnect();
 
-  const todo = await Todo.findById(id).select(
-    "title description completed createdAt",
-  );
+  const todo = await Todo.findOne({
+    _id: id,
+    userId,
+  });
 
   if (!todo) {
     throw new TodoNotFoundError();
@@ -41,6 +51,7 @@ export async function getTodoById(id: string) {
 
 export async function updateTodo(
   id: string,
+  userId: string,
   data: {
     title?: string;
     description?: string;
@@ -51,10 +62,17 @@ export async function updateTodo(
 
   await dbConnect();
 
-  const todo = await Todo.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true,
-  });
+  const todo = await Todo.findOneAndUpdate(
+    {
+      _id: id,
+      userId,
+    },
+    data,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
 
   if (!todo) {
     throw new TodoNotFoundError();
@@ -63,13 +81,15 @@ export async function updateTodo(
   return todo;
 }
 
-
-export async function deleteTodo(id: string) {
+export async function deleteTodo(id: string, userId: string) {
   validateTodoId(id);
 
   await dbConnect();
 
-  const todo = await Todo.findByIdAndDelete(id);
+  const todo = await Todo.findOneAndDelete({
+    _id: id,
+    userId,
+  });
 
   if (!todo) {
     throw new TodoNotFoundError();

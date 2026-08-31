@@ -8,6 +8,11 @@ type RegisterInput = {
   password: string;
 };
 
+type LoginInput = {
+  email: string;
+  password: string;
+};
+
 export async function registerUser(data: RegisterInput) {
   await dbConnect();
 
@@ -26,6 +31,33 @@ export async function registerUser(data: RegisterInput) {
     email: data.email,
     passwordHash,
   });
+
+  return {
+    _id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+  };
+}
+
+export async function loginUser(data: LoginInput) {
+  await dbConnect();
+
+  const user = await User.findOne({
+    email: data.email,
+  });
+
+  if (!user) {
+    throw new Error("Invalid email or password");
+  }
+
+  const isPasswordValid = await bcrypt.compare(
+    data.password,
+    user.passwordHash,
+  );
+
+  if (!isPasswordValid) {
+    throw new Error("Invalid email or password");
+  }
 
   return {
     _id: user._id.toString(),

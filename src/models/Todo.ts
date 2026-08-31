@@ -13,9 +13,16 @@ const TodoSchema = new Schema(
       default: "",
       trim: true,
     },
+
     completed: {
       type: Boolean,
       default: false,
+    },
+
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   {
