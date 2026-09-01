@@ -107,7 +107,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={isLoading}
-        className="rounded bg-black p-2 text-white disabled:opacity-50"
+        className="rounded bg-blue-600 p-2 text-white disabled:opacity-50"
       >
         {isLoading ? "Please wait..." : isRegister ? "Create account" : "Login"}
       </button>
