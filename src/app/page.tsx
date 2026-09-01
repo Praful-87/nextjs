@@ -1,9 +1,17 @@
 import TodoForm from "@/components/TodoForm";
 import TodoList from "@/components/TodoList";
 import { getTodos } from "@/lib/services/todoService";
-
+import { getCurrentUser } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 export default async function Home() {
-  const todos = await getTodos();
+  const user = await getCurrentUser();
+
+  // console.log(user);
+
+  if (!user) {
+    redirect("/login");
+  }
+  const todos = await getTodos(user.userId);
 
   const formattedTodos = todos.map((todo) => ({
     _id: todo._id.toString(),

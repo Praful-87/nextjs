@@ -28,11 +28,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       if (isRegister) {
-        await registerUser({
-          name,
-          email,
-          password,
-        });
+        await registerUser( {name, email, password,} );
       } else {
         await loginUser({
           email,

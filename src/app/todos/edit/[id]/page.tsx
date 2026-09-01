@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import TodoForm from "@/components/TodoForm";
 import { getTodoById } from "@/lib/services/todoService";
 import { InvalidTodoIdError, TodoNotFoundError } from "@/lib/errors/TodoErrors";
+import { getCurrentUser } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{
@@ -10,10 +12,15 @@ type PageProps = {
 };
 
 export default async function EditTodoPage({ params }: PageProps) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
   const { id } = await params;
 
   try {
-    const todo = await getTodoById(id);
+    const todo = await getTodoById(id,user.userId);
 
     return (
       <main className="min-h-screen p-10">
