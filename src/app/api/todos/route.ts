@@ -1,20 +1,17 @@
-import {
-  successResponse,
-  errorResponse,
-} from "@/lib/apiResponse/apiResponse";
+import { successResponse, errorResponse } from "@/lib/apiResponse/apiResponse";
+import { requireAuth } from "@/lib/auth/requireAuth";
 
-import { createTodoSchema  } from "@/lib/validations/todo";
+import { createTodoSchema } from "@/lib/validations/todo";
 
-import {
-  getTodos,
-  createTodo,
-} from "@/lib/services/todoService";
+import { getTodos, createTodo } from "@/lib/services/todoService";
 
 import { handleApiError } from "@/lib/utils/handleApiError";
 
 export async function GET() {
   try {
-    const todos = await getTodos();
+    const user = await requireAuth();
+
+    const todos = await getTodos(user.userId);
 
     return successResponse(todos);
   } catch (error) {
@@ -24,6 +21,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const user = await requireAuth();
+
     let body;
 
     try {
@@ -32,7 +31,7 @@ export async function POST(request: Request) {
       return errorResponse("Invalid JSON body", 400);
     }
 
-    const result = createTodoSchema .safeParse(body);
+    const result = createTodoSchema.safeParse(body);
 
     if (!result.success) {
       return errorResponse(
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const todo = await createTodo(result.data);
+    const todo = await createTodo(user.userId, result.data);
 
     return successResponse(todo, 201);
   } catch (error) {

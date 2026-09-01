@@ -1,4 +1,5 @@
 import { successResponse, errorResponse } from "@/lib/apiResponse/apiResponse";
+import { requireAuth } from "@/lib/auth/requireAuth";
 
 import {
   getTodoById,
@@ -17,7 +18,9 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-    const todo = await getTodoById(id);
+    const user = await requireAuth();
+
+    const todo = await getTodoById(id, user.userId);
 
     return successResponse(todo);
   } catch (error) {
@@ -54,7 +57,8 @@ export async function PATCH(
       return errorResponse("At least one field is required", 400);
     }
 
-    const todo = await updateTodo(id, result.data);
+    const user = await requireAuth();
+    const todo = await updateTodo(id, user.userId, result.data);
 
     return successResponse(todo);
   } catch (error) {
@@ -69,7 +73,9 @@ export async function DELETE(
   try {
     const { id } = await context.params;
 
-    const todo = await deleteTodo(id);
+    const user = await requireAuth();
+
+    const todo = await deleteTodo(id, user.userId);
 
     return successResponse(todo);
   } catch (error) {
