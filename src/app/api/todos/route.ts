@@ -11,7 +11,7 @@ export async function GET() {
   try {
     const user = await requireAuth();
 
-    const todos = await getTodos(user.userId);
+    const todos = await getTodos(user._id);
 
     return successResponse(todos);
   } catch (error) {
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const todo = await createTodo(user.userId, result.data);
+    const todo = await createTodo(user._id, result.data);
 
     return successResponse(todo, 201);
   } catch (error) {

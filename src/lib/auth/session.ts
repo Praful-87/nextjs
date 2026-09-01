@@ -1,5 +1,6 @@
-import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { SignJWT, jwtVerify } from "jose";
+import { getUserById } from "@/lib/services/authService";
 
 const secret = process.env.JWT_SECRET;
 
@@ -45,6 +46,7 @@ export async function verifySessionToken(
     return null;
   }
 }
+
 export async function getCurrentUser() {
   const cookieStore = await cookies();
 
@@ -54,5 +56,11 @@ export async function getCurrentUser() {
     return null;
   }
 
-  return verifySessionToken(token);
+  const session = await verifySessionToken(token);
+
+  if (!session) {
+    return null;
+  }
+
+  return getUserById(session.userId);
 }

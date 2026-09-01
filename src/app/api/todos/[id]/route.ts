@@ -20,7 +20,7 @@ export async function GET(
 
     const user = await requireAuth();
 
-    const todo = await getTodoById(id, user.userId);
+    const todo = await getTodoById(id, user._id);
 
     return successResponse(todo);
   } catch (error) {
@@ -58,7 +58,7 @@ export async function PATCH(
     }
 
     const user = await requireAuth();
-    const todo = await updateTodo(id, user.userId, result.data);
+    const todo = await updateTodo(id, user._id, result.data);
 
     return successResponse(todo);
   } catch (error) {
@@ -75,7 +75,7 @@ export async function DELETE(
 
     const user = await requireAuth();
 
-    const todo = await deleteTodo(id, user.userId);
+    const todo = await deleteTodo(id, user._id);
 
     return successResponse(todo);
   } catch (error) {

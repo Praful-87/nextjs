@@ -3,6 +3,8 @@ import TodoList from "@/components/TodoList";
 import { getTodos } from "@/lib/services/todoService";
 import { getCurrentUser } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
+import UserMenu from "@/components/UserMenu";
+
 export default async function Home() {
   const user = await getCurrentUser();
 
@@ -11,7 +13,7 @@ export default async function Home() {
   if (!user) {
     redirect("/login");
   }
-  const todos = await getTodos(user.userId);
+  const todos = await getTodos(user._id);
 
   const formattedTodos = todos.map((todo) => ({
     _id: todo._id.toString(),
@@ -22,6 +24,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen p-10">
+      <UserMenu name={user.name} email={user.email} />
       <div className="mx-auto max-w-2xl space-y-8">
         <h1 className="text-center text-4xl font-bold">Todo App</h1>
 

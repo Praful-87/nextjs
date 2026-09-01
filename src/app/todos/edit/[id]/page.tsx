@@ -20,7 +20,7 @@ export default async function EditTodoPage({ params }: PageProps) {
   const { id } = await params;
 
   try {
-    const todo = await getTodoById(id,user.userId);
+    const todo = await getTodoById(id,user._id);
 
     return (
       <main className="min-h-screen p-10">
