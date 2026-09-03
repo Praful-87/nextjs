@@ -9,12 +9,44 @@ function validateTodoId(id: string) {
   }
 }
 
-export async function getTodos(userId: string) {
+export async function getTodos(
+  userId: string,
+  page: number = 1,
+  limit: number = 10,
+) {
   await dbConnect();
 
-  return Todo.find({ userId })
-    .select("title description completed createdAt")
-    .sort({ createdAt: -1 });
+  const skip = (page - 1) * limit;
+
+  const [todos, total, active, completed] = await Promise.all([
+    Todo.find({ userId })
+      .select("title description completed createdAt")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Todo.countDocuments({ userId }),
+
+    Todo.countDocuments({
+      userId,
+      completed: false,
+    }),
+
+    Todo.countDocuments({
+      userId,
+      completed: true,
+    }),
+  ]);
+
+  return {
+    todos,
+    total,
+    active,
+    completed,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export async function createTodo(

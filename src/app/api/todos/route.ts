@@ -7,13 +7,30 @@ import { getTodos, createTodo } from "@/lib/services/todoService";
 
 import { handleApiError } from "@/lib/utils/handleApiError";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await requireAuth();
 
     const todos = await getTodos(user._id);
+    const { searchParams } = new URL(request.url);
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
+    const page = pageParam ? Number(pageParam) : 1;
+    const limit = limitParam ? Number(limitParam) : 10;
 
-    return successResponse(todos);
+    if (
+      !Number.isInteger(page) ||
+      page < 1 ||
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 100
+    ) {
+      return errorResponse("Invalid pagination parameters", 400);
+    }
+
+    const result = await getTodos(user._id, page, limit);
+
+    return successResponse(result);
   } catch (error) {
     return handleApiError(error);
   }
