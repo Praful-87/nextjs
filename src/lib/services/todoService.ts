@@ -13,27 +13,61 @@ export async function getTodos(
   userId: string,
   page: number = 1,
   limit: number = 10,
+  search: string = "",
+  status: "all" | "active" | "completed" = "all",
 ) {
   await dbConnect();
 
   const skip = (page - 1) * limit;
 
+  const filter: {
+    userId: string;
+    completed?: boolean;
+    $or?: Array<
+      | {
+          title: { $regex: string; $options: string };
+        }
+      | {
+          description: { $regex: string; $options: string };
+        }
+    >;
+  } = {
+    userId,
+  };
+
+  if (status === "active") {
+    filter.completed = false;
+  }
+
+  if (status === "completed") {
+    filter.completed = true;
+  }
+
+  if (search.trim()) {
+    const searchRegex = search.trim();
+
+    filter.$or = [
+      { title: { $regex: searchRegex, $options: "i" } },
+      { description: { $regex: searchRegex, $options: "i" } },
+    ];
+  }
+
   const [todos, total, active, completed] = await Promise.all([
-    Todo.find({ userId })
+    Todo.find(filter)
       .select("title description completed createdAt")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),
 
-    Todo.countDocuments({ userId }),
+    Todo.countDocuments(filter),
 
     Todo.countDocuments({
-      userId,
+      ...filter,
       completed: false,
     }),
 
     Todo.countDocuments({
-      userId,
+      ...filter,
       completed: true,
     }),
   ]);

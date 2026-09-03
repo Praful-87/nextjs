@@ -8,7 +8,8 @@ import UserMenu from "@/components/UserMenu";
 type PageProps = {
   searchParams: Promise<{
     page?: string;
-    limit?: string;
+    search?: string;
+    status?: "all" | "active" | "completed";
   }>;
 };
 
@@ -16,15 +17,24 @@ export default async function Home({ searchParams }: PageProps) {
   const user = await getCurrentUser();
 
   const params = await searchParams;
+
   const page = Number(params.page) || 1;
-  const limit: number = Number(params.limit) || 10;
+  const limit = 10;
+
+  const search = params.search ?? "";
+
+  const status =
+    params.status === "active" || params.status === "completed"
+      ? params.status
+      : "all";
 
   // console.log(user);
 
   if (!user) {
     redirect("/login");
   }
-  const result = await getTodos(user._id, page, limit);
+
+  const result = await getTodos(user._id, page, limit, search, status);
 
   // console.log(result);
 

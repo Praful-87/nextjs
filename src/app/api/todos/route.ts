@@ -11,12 +11,18 @@ export async function GET(request: Request) {
   try {
     const user = await requireAuth();
 
-    const todos = await getTodos(user._id);
+    // const todos = await getTodos(user._id);
     const { searchParams } = new URL(request.url);
     const pageParam = searchParams.get("page");
     const limitParam = searchParams.get("limit");
     const page = pageParam ? Number(pageParam) : 1;
     const limit = limitParam ? Number(limitParam) : 10;
+    const search = searchParams.get("search") ?? "";
+    const statusParam = searchParams.get("status");
+    const status =
+      statusParam === "active" || statusParam === "completed"
+        ? statusParam
+        : "all";
 
     if (
       !Number.isInteger(page) ||
@@ -28,7 +34,7 @@ export async function GET(request: Request) {
       return errorResponse("Invalid pagination parameters", 400);
     }
 
-    const result = await getTodos(user._id, page, limit);
+    const result = await getTodos(user._id, page, limit, search, status);
 
     return successResponse(result);
   } catch (error) {
