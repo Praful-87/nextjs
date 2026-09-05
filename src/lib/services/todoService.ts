@@ -1,7 +1,11 @@
 import dbConnect from "@/lib/dbConnect";
 import Todo from "@/models/Todo";
 import mongoose from "mongoose";
-import { InvalidTodoIdError, TodoNotFoundError } from "@/lib/errors/TodoErrors";
+import {
+  InvalidTodoIdError,
+  TodoNotFoundError,
+  InvalidPaginationError,
+} from "@/lib/errors/TodoErrors";
 
 function validateTodoId(id: string) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -15,8 +19,17 @@ export async function getTodos(
   limit: number = 10,
   search: string = "",
   status: "all" | "active" | "completed" = "all",
+  sort: "newest" | "oldest" = "newest",
 ) {
   await dbConnect();
+
+  if (!Number.isInteger(page) || page < 1) {
+    throw new InvalidPaginationError("Invalid page");
+  }
+
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    throw new InvalidPaginationError("Invalid limit");
+  }
 
   const skip = (page - 1) * limit;
 
@@ -55,19 +68,19 @@ export async function getTodos(
   const [todos, total, active, completed] = await Promise.all([
     Todo.find(filter)
       .select("title description completed createdAt")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: sort === "newest" ? -1 : 1 })
       .skip(skip)
       .limit(limit),
 
     Todo.countDocuments(filter),
 
     Todo.countDocuments({
-      ...filter,
+      userId,
       completed: false,
     }),
 
     Todo.countDocuments({
-      ...filter,
+      userId,
       completed: true,
     }),
   ]);

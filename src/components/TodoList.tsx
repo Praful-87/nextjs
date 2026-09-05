@@ -78,7 +78,15 @@ export default function TodoList({
     try {
       await deleteTodo(id);
 
-      router.refresh();
+      if (todos.length === 1 && currentPage > 1) {
+        const params = new URLSearchParams(searchParams.toString());
+
+        params.set("page", String(currentPage - 1));
+
+        router.push(`/?${params.toString()}`);
+      } else {
+        router.refresh();
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message);
